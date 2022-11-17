@@ -2,10 +2,11 @@
 
 public class AnimatedSprite extends Sprite {
   // Attributes
-  private PImage[] currentImages;
-  private PImage[] standNeutral;
-  private PImage[] moveLeft;
-  private PImage[] moveRight;
+  protected PImage[] currentImages;
+  protected PImage[] standRight;
+  protected PImage[] standLeft;
+  protected PImage[] moveLeft;
+  protected PImage[] moveRight;
   private String direction;
   private int index;
   private int frame;
@@ -15,7 +16,7 @@ public class AnimatedSprite extends Sprite {
   // Constructors
   public AnimatedSprite(PImage img, float x, float y, float scale) {
     super(img, x, y, scale);
-    direction = "NEUTRAL";
+    direction = "STAND_RIGHT";
     index = 0;
     frame = 0;
     frameDelay = 5;
@@ -44,7 +45,7 @@ public class AnimatedSprite extends Sprite {
   }
   
   // Methods
-  //  Updates animation to facing left, right, or netural
+  //  Updates animation to facing left, right, etc. and go through frames
   public void updateAnimation() {
     frame++;
     if (frame % frameDelay == 0) {
@@ -60,8 +61,16 @@ public class AnimatedSprite extends Sprite {
       direction = "RIGHT";
     } else if (super.changeX < -movingError) {
       direction = "LEFT";
+    } else if (super.changeX > 0) {
+      direction = "STAND_RIGHT";
+    } else if (super.changeX < 0) {
+      direction = "STAND_LEFT";
     } else {
-      direction = "NEUTRAL";
+      if (direction.charAt(0) == 'R') {
+        direction = "STAND_RIGHT";
+      } else if (direction.charAt(0) == 'L') {
+        direction = "STAND_LEFT";
+      }
     }
   }
   //  Changes the displayed images
@@ -70,8 +79,10 @@ public class AnimatedSprite extends Sprite {
       currentImages = moveRight;
     } else if (direction.charAt(0) == 'L') {
       currentImages = moveLeft;
-    } else {
-      currentImages = standNeutral;
+    } else if (direction.equals("STAND_RIGHT")) {
+      currentImages = standRight;
+    } else if (direction.equals("STAND_LEFT")) {
+      currentImages = standLeft;
     }
   }
   public void advanceToNextImage() {

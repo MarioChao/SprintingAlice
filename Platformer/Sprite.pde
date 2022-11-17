@@ -162,6 +162,9 @@ public class Sprite {
   public void setVisibility(boolean visible) {
     this.visible = visible;
   }
+  public boolean getVisibility() {
+    return visible;
+  }
   
   //  Show image
   public void display() {
@@ -176,19 +179,10 @@ public class Sprite {
     boolean isNotCollidingY = getBottom() <= other.getTop() || getTop() >= other.getBottom();
     return !(isNotCollidingX || isNotCollidingY);
   } 
-  public ArrayList<AnimatedSprite> getCollidedAnim(ArrayList<AnimatedSprite> objects) {
-    ArrayList<AnimatedSprite> collided = new ArrayList<AnimatedSprite>();
-    for (AnimatedSprite obj : objects) {
-      if (player.isColliding(obj)) {
-        collided.add(obj);
-      }
-    }
-    return collided;
-  }
   public ArrayList<Sprite> getCollided(ArrayList<Sprite> objects) {
-    ArrayList<Sprite> collided = new ArrayList<Sprite>();
+    ArrayList<Sprite> collided = new ArrayList<Sprite> ();
     for (Sprite obj : objects) {
-      if (player.isColliding(obj)) {
+      if (this != obj && isColliding(obj)) {
         collided.add(obj);
       }
     }

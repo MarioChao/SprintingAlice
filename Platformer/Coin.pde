@@ -1,14 +1,16 @@
 // Animated Coins Class
 
+static int coins = 0;
+
 public class Coin extends AnimatedSprite {
   // Constructors
   public Coin(PImage img, float x, float y, float scale) {
     super(img, x, y, scale);
-    super.standNeutral = new PImage[30];
+    standRight = standLeft = new PImage[30];
     for (int i = 0; i < 30; i++) {
-      super.standNeutral[i] = loadImage(String.format("data/coins/normalCoinUnscaled/data/%03d.png", i));
+      standRight[i] = loadImage(String.format("data/coins/normalCoinUnscaled/data/%03d.png", i));
     }
-    super.currentImages = super.standNeutral;
+    currentImages = standRight;
     
     super.frameDelay = 4;
   }
@@ -32,5 +34,13 @@ public class Coin extends AnimatedSprite {
   }
   public Coin(String filename) {
     this(filename, 0, 0, 1);
+  }
+  
+  // Methods
+  public void setVisibility(boolean visible) {
+    if (getVisibility()) {
+      coins++;
+    }
+    super.setVisibility(visible);
   }
 }

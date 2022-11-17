@@ -4,6 +4,9 @@
 float RIGHT_MARGIN = 500;
 float LEFT_MARGIN = 200;
 float VERTICAL_MARGIN = 20;
+
+final static int windowWidth = 1000;
+final static int windowHeight = 600;
 float viewX = 0, viewY = 0;
 
 // Tiles size
@@ -25,8 +28,10 @@ boolean showHitbox = false;
 // Sprites
 Sprite player;
 HashMap<Integer, Sprite> spriteList;
-ArrayList<Sprite> platforms, bgDeco;
-ArrayList<AnimatedSprite> items;
+ArrayList<Sprite> platforms, bgDeco, bgDeco2;
+ArrayList<Sprite> items;
+ArrayList<Sprite> creatures;
+Sprite coinUi;
 
 // Movements
 //  Horizontal
@@ -35,6 +40,10 @@ float moveSpeed;
 //  Vertical
 float gravityAcclr;
 float jumpPower;
+
+// UIs
+// Fonts
+PFont ComicSansMS;
 
 // Booleans
 //  Debounces
@@ -49,12 +58,13 @@ float leavingLimit;
 void setup() {
   // Windows
   size(1000, 600);
+  //fullScreen();
   
   // Images
-  imageMode(CENTER);
-  //player = new Sprite("data/player.png", (tileSize - 2) / 60); //<>//
-  player = new Player("data/player.png", (tileSize - 2) / 60);
+  imageMode(CENTER); //<>//
+  player = new Player("data/player.png", (tileSize - 2) / 80);
   createSpriteList();
+  coinUi = new Sprite("data/hudCoin.png", (tileSize * 2) / 128);
   createPlatforms("data/maps/map1.csv");
   
   // Preset level and spawns
@@ -71,6 +81,10 @@ void setup() {
   //  Vertical
   gravityAcclr = 9.8 / 60;
   jumpPower = 6;
+  
+  // UIs
+  //  Fonts
+   ComicSansMS = createFont("ComicSansMS", tileSize);
   
   // Booleans
   //  Debounces
@@ -99,7 +113,7 @@ void draw() {
   player.setSpeedX(player.getSpeedX() + (float) (error * kP));
   
   //  Vertical component
-  player.addSpeedY(gravityAcclr);
+  //player.addSpeedY(gravityAcclr);
   //   Jump
   if (dbUp) {
     if (touchingGround && player.getSpeedY() >= 0) {
@@ -119,8 +133,11 @@ void draw() {
   }
   
   // Move and check physics
-  resolvePlatformCollisions(player, platforms);
+  fallCollide(player, platforms);
   checkItemCollisions(player, items);
+  player.addY(5);
+  touchingGround = player.getCollided(platforms).size() > 0;
+  player.addY(-5);
   
   // Player death
   if (player.getY() > VOID_HEIGHT) {
@@ -150,10 +167,34 @@ void draw() {
   for (Sprite deco : bgDeco) {
     deco.display();
   }
+  for (Sprite deco : bgDeco2) {
+    deco.display();
+  }
+  
+  //  Enemies
+  for (Sprite c : creatures) {
+    c.display();
+    ((AnimatedSprite) c).updateAnimation();
+    ((Enemy) c).move(platforms);
+    if (c.getY() > VOID_HEIGHT) {
+      c.setVisibility(false);
+      c = null;
+    }
+  }
   
   //  Player
   player.display();
   ((AnimatedSprite) player).updateAnimation();
+  
+  //  UIs
+  //   Coins
+  coinUi.setX(viewX + tileSize * 1.5);
+  coinUi.setY(viewY + tileSize * 1.5);
+  coinUi.display();
+  textAlign(LEFT);
+  textFont(ComicSansMS);
+  fill(255, 255, 0);
+  text(String.format("× %d", coins), viewX + tileSize * 2.5, viewY + tileSize * 1.75);
   
   //  Debug
   if (showHitbox) {
@@ -161,6 +202,11 @@ void draw() {
     stroke(255, 0, 0);
     for (Sprite tile : platforms) {
       rect(tile.getLeft(), tile.getTop(), tile.getW(), tile.getH());
+    }
+    // Creatures
+    stroke(255, 255, 0);
+    for (Sprite creature : creatures) {
+      rect(creature.getLeft(), creature.getTop(), creature.getW(), creature.getH());
     }
     // Player
     stroke(0, 255, 0);
@@ -171,7 +217,7 @@ void draw() {
 
 // Create a list of sprites
 void createSpriteList() {
-  spriteList = new HashMap<Integer, Sprite>();
+  spriteList = new HashMap<Integer, Sprite> ();
   spriteList.put(1, new Sprite("data/brown_brick.png", tileScale));
   spriteList.put(2, new Sprite("data/red_brick.png", tileScale));
   spriteList.put(3, new Sprite("data/crate.png", tileScale));
@@ -179,14 +225,20 @@ void createSpriteList() {
   spriteList.put(101, new Coin("data/coins/normalCoinUnscaled/mergedimage.png", tileSize / 240));
   
   spriteList.put(201, new Sprite("data/sun.png"));
-  spriteList.put(202, new Sprite("data/snow.png", tileScale));
+  
+  spriteList.put(301, new Sprite("data/snow.png", tileScale));
+  
+  spriteList.put(401, new BlueSlime("data/enemies/slimeBlue/slimeBlue.png", 0, 0, tileScale, 0.5, 0, true));
+  spriteList.put(402, new BlueSlime("data/enemies/slimeBlue/slimeBlue.png", 0, 0, tileScale, 0.5, 0, false));
 }
 
 // Create platforms sprite from CSV file
 void createPlatforms(String filename) {
-  platforms = new ArrayList<Sprite>();
-  items = new ArrayList<AnimatedSprite>();
-  bgDeco = new ArrayList<Sprite>();
+  platforms = new ArrayList<Sprite> ();
+  items = new ArrayList<Sprite> ();
+  bgDeco = new ArrayList<Sprite> ();
+  bgDeco2 = new ArrayList<Sprite> ();
+  creatures = new ArrayList<Sprite> ();
   float x, y;
   String[] lines = loadStrings(filename);
   for (int row = 0; row < lines.length; row++) {
@@ -215,11 +267,20 @@ void createPlatforms(String filename) {
           Coin c = new Coin(s.getImg(), x, y, s.getScale());
           items.add(c);
         } else {
-          AnimatedSprite as = new AnimatedSprite(s.getImg(), x, y, s.getScale());
-          items.add(as);
+          items.add(s);
         }
       } else if (index <= 300) {
         bgDeco.add(s);
+      } else if (index <= 400) {
+        bgDeco2.add(s);
+      } else if (index <= 500) {
+        if (index == 401) {
+          Sprite enemy = new BlueSlime(o.getImg(), x, y, o.getScale(), o.getSpeedX(), o.getSpeedY(), ((Enemy) o).getWillWalkOff());
+          creatures.add(enemy);
+        } else if (index == 402) {
+          Sprite enemy = new BlueSlime(o.getImg(), x, y, o.getScale(), o.getSpeedX(), o.getSpeedY(), ((Enemy) o).getWillWalkOff());
+          creatures.add(enemy);
+        }
       }
     }
     println();
@@ -285,59 +346,8 @@ void keyReleased() {
   }
 }
 
-// Move and check collisions
-void resolvePlatformCollisions(Sprite plyr, ArrayList<Sprite> walls) {
-  // Move in the y-direction
-  plyr.updateY();
-  // Resolve vertical collision
-  touchingGround = false;
-  ArrayList<Sprite> col_list = plyr.getCollided(walls);
-  if (col_list.size() > 0) {
-    float mostTop, mostBottom;
-    mostTop = col_list.get(0).getTop();
-    mostBottom = col_list.get(0).getBottom();
-    for (Sprite collided : col_list) {
-      mostTop = min(mostTop, collided.getTop());
-      mostBottom = max(mostBottom, collided.getBottom());
-    }
-    // Touching ground
-    if (plyr.getSpeedY() > 0) {
-      plyr.setBottom(mostTop);
-      touchingGround = true;
-    }
-    // Touching roof
-    else if (player.getSpeedY() < 0) {
-      plyr.setTop(mostBottom);
-    }
-    plyr.setSpeedY(0);
-  }
-  
-  // Move in the x-direction
-  plyr.updateX();
-  // Resolve horizontal collision
-  col_list = plyr.getCollided(walls);
-  if (col_list.size() > 0) {
-    float mostRight, mostLeft;
-    mostRight = col_list.get(0).getRight();
-    mostLeft = col_list.get(0).getLeft();
-    for (Sprite collided : col_list) {
-      mostRight = max(mostRight, collided.getRight());
-      mostLeft = min(mostLeft, collided.getLeft());
-    }
-    // Touching right wall
-    if (plyr.getSpeedX() > 0) {
-      plyr.setRight(mostLeft);
-    }
-    // Touching left wall
-    else if (player.getSpeedX() < 0) {
-      plyr.setLeft(mostRight);
-    }
-    plyr.setSpeedX(0);
-  }
-}
-
-void checkItemCollisions(Sprite plyr, ArrayList<AnimatedSprite> items) {
-  ArrayList<AnimatedSprite> col_list = plyr.getCollidedAnim(items);
+void checkItemCollisions(Sprite plyr, ArrayList<Sprite> items) {
+  ArrayList<Sprite> col_list = plyr.getCollided(items);
   for (Sprite collided : col_list) {
     collided.setVisibility(false);
   }
