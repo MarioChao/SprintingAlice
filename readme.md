@@ -23,4 +23,5 @@ Use arrow keys to move the player. Use the space key to jump.
 
 ## Hints
 Each level has some deep and definitely intentional symbolism about pride. Try to figure it out.
+<br/>
 In the third level, each moon-shaped powerup will increase your jump height. There are three in total. You will also need figure out the map through trial-and-error.
