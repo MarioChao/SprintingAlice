@@ -67,11 +67,12 @@ void setup() {
   player = new Player("data/player.png", (tileSize - 2) / 80);
   createSpriteList();
   coinUi = new Sprite("data/hudCoin.png", (tileSize * 2) / 128);
-  createPlatforms("data/maps/map1.csv");
+  
   
   // Preset level and spawns
+  levelId = 3;
+  setLevel(levelId);
   initSpawnLocation();
-  levelId = 1;
   
   // Init coordinate
   initPlayer();
@@ -99,6 +100,11 @@ void setup() {
   //  Conditions
   touchingGround = false;
   leavingGround = 0;
+}
+
+void setLevel(int lvl){
+  if (lvl == 1) createPlatforms("data/maps/map1.csv");
+  if (lvl == 3) createPlatforms("data/maps/map3.csv");
 }
 
 // DRAW
@@ -291,7 +297,8 @@ void initSpawnLocation() {
   spawnLocation = new float[5][2]; // 5 levels, {x, y}
   spawnLocation[0][0] = tileSize * 29.5;
   spawnLocation[0][1] = tileSize * 51.5;
- 
+  spawnLocation[2][0] = tileSize * 1.5;
+  spawnLocation[2][0] = tileSize * 17.5;
 }
 
 // Reset Player Position
