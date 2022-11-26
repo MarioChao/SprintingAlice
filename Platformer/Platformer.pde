@@ -223,6 +223,7 @@ void createSpriteList() {
   spriteList.put(3, new Sprite("data/crate.png", tileScale));
   
   spriteList.put(101, new Coin("data/coins/normalCoinUnscaled/mergedimage.png", tileSize / 240));
+  spriteList.put(102, new PowerUp("data/moon_full.png", tileScale));
   
   spriteList.put(201, new Sprite("data/sun.png"));
   
