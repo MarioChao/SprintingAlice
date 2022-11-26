@@ -17,22 +17,25 @@ public class PowerUp extends AnimatedSprite{
   public PowerUp(String filename, float scale) {
     this(filename, 0, 0, scale);
   }
-  
+  public void activatePower(){
+  }
   // Methods
   public void setVisibility(boolean visible) {
+    print("jumpPower: " + jumpPower);
     super.setVisibility(visible);
-    if (!visible) increaseJump();
-    print(jumpPower);
+    if (!visible) activatePower();
   }
-  public void increaseJump(){
-    jumpPower = 10 * moveScale;
-  }
-  
-  
 }
 
 public class SpeedBoost extends PowerUp{
   public SpeedBoost(String filename, float scale){
     super(filename, scale);
+  }
+  public SpeedBoost(PImage img, float x, float y, float scale){
+    super(img, x, y, scale);
+  }
+  @Override
+  public void activatePower(){
+    jumpPower += moveScale;
   }
 }
