@@ -18,4 +18,7 @@ Go around each level and find a goal flag to complete it.
 You start with 3 lives, and after you died 3 times, you'll start over from a save-point.
 
 ## Instructions
-Use arrow keys to move the player and jump.
+Use arrow keys to move the player. Use the space key to jump.
+
+## Hints
+In the third level, each moon-shaped powerup will increase your jump height. There are three in total. You will also need figure out the map through trial-and-error.
