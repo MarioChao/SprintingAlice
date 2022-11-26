@@ -270,7 +270,12 @@ void createPlatforms(String filename) {
         if (index == 101) {
           Coin c = new Coin(s.getImg(), x, y, s.getScale());
           items.add(c);
-        } else {
+        }
+        else if (index == 102){
+          PowerUp p = new SpeedBoost(s.getImg(), x, y, s.getScale());
+          items.add(p);
+        }
+        else {
           items.add(s);
         }
       } else if (index <= 300) {
@@ -299,7 +304,7 @@ void initSpawnLocation() {
   spawnLocation[0][0] = tileSize * 29.5;
   spawnLocation[0][1] = tileSize * 51.5;
   spawnLocation[2][0] = tileSize * 1.5;
-  spawnLocation[2][0] = tileSize * 17.5;
+  spawnLocation[2][1] = tileSize * 17.5;
 }
 
 // Reset Player Position
@@ -373,6 +378,7 @@ void checkItemCollisions(Sprite plyr, ArrayList<Sprite> items) {
   ArrayList<Sprite> col_list = plyr.getCollided(items);
   for (Sprite collided : col_list) {
     collided.setVisibility(false);
+    
   }
 }
 
