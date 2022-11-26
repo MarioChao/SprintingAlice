@@ -1,6 +1,6 @@
 // Falling Object
 
-static float gravityAcceleration = 9.8 / 60;
+static float gravityAcceleration = 9.8 / 60 * moveScale;
 
 // Check if moving object will touch a wall
 public static boolean checkMovingTouch(Sprite obj, ArrayList<Sprite> walls) {
@@ -53,10 +53,31 @@ public static boolean checkMovingBoundary(Sprite obj, ArrayList<Sprite> walls) {
   return checkMovingTouch(obj, walls) || checkMovingHovering(obj, walls);
 }
 
+// Check if object is on ground
+public static boolean checkTouchGround(Sprite obj, ArrayList<Sprite> walls) {
+  boolean val = false;
+  
+  // Move object
+  obj.addY(5);
+  ArrayList<Sprite> col_list = obj.getCollided(walls);
+  //  Check collided
+  if (col_list.size() > 0) {
+    val = true;
+  }
+  
+  // Revert changes
+  obj.addY(-5);
+  
+  // Return
+  return val;
+}
+
 // Make object fall
 public static void fallCollide(Sprite obj, ArrayList<Sprite> walls) {
   resolveCollision(obj, walls);
-  obj.addSpeedY(gravityAcceleration);
+  if (!checkTouchGround(obj, walls)) {
+    obj.addSpeedY(gravityAcceleration);
+  }
 }
 
 // Move and check collisions

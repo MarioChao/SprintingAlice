@@ -1,17 +1,18 @@
 // Project 1: Create a Platformer Game in Java
 
+// Tiles size
+static float tileSize = 50;
+static float tileScale = tileSize / 128.0;
+static float moveScale = tileSize / 25.0;
+
 // Windows
-float RIGHT_MARGIN = 500;
-float LEFT_MARGIN = 200;
-float VERTICAL_MARGIN = 20;
+float RIGHT_MARGIN = 500 - tileSize;
+float LEFT_MARGIN = 200 + tileSize;
+float VERTICAL_MARGIN = tileSize;
 
 final static int windowWidth = 1000;
 final static int windowHeight = 600;
 float viewX = 0, viewY = 0;
-
-// Tiles size
-float tileSize = 25;
-float tileScale = tileSize / 128.0;
 
 // Void height
 float VOID_HEIGHT = tileSize * 66;
@@ -23,7 +24,7 @@ float[][] spawnLocation;
 int levelId = 1;
 
 // Settings
-boolean showHitbox = false;
+boolean showHitbox = true;
 
 // Sprites
 Sprite player;
@@ -31,6 +32,7 @@ HashMap<Integer, Sprite> spriteList;
 ArrayList<Sprite> platforms, bgDeco, bgDeco2;
 ArrayList<Sprite> items;
 ArrayList<Sprite> creatures;
+ArrayList<Sprite> goals;
 Sprite coinUi;
 
 // Movements
@@ -38,7 +40,6 @@ Sprite coinUi;
 float moveSpeed;
 
 //  Vertical
-float gravityAcclr;
 float jumpPower;
 
 // UIs
@@ -47,12 +48,13 @@ PFont ComicSansMS;
 
 // Booleans
 //  Debounces
-boolean dbRight, dbLeft, dbUp, dbMapChng;
+boolean dbRight, dbLeft, dbUp, dbDown;
+boolean dbSpace;
+boolean dbMapChng;
 
 //  Conditions
 boolean touchingGround;
 int leavingGround;
-float leavingLimit;
 
 // SETUP
 void setup() {
@@ -76,21 +78,22 @@ void setup() {
   
   // Movements
   //  Horizontal
-  moveSpeed = 3;
+  moveSpeed = 3 * moveScale;
   
   //  Vertical
-  gravityAcclr = 9.8 / 60;
-  jumpPower = 6;
+  jumpPower = 6 * moveScale;
   
   // UIs
   //  Fonts
-   ComicSansMS = createFont("ComicSansMS", tileSize);
+  ComicSansMS = createFont("ComicSansMS", tileSize);
   
   // Booleans
   //  Debounces
   dbRight = false;
   dbLeft = false;
   dbUp = false;
+  dbDown = false;
+  dbSpace = false;
   dbMapChng = false;
   
   //  Conditions
@@ -102,7 +105,7 @@ void setup() {
 void draw() {
   // Values
   //  Horizontal component
-  double kP = touchingGround ? 0.07 : 0.045;
+  double kP = (touchingGround ? 0.07 : 0.045);
   double error = 0;
   if ((dbRight || dbLeft) && !(dbRight && dbLeft)) {
     if (dbRight) error = moveSpeed - player.getSpeedX();
@@ -115,22 +118,7 @@ void draw() {
   //  Vertical component
   //player.addSpeedY(gravityAcclr);
   //   Jump
-  if (dbUp) {
-    if (touchingGround && player.getSpeedY() >= 0) {
-      player.setSpeedY(-jumpPower * 0.75);
-      leavingGround = 1;
-      leavingLimit = abs(player.getSpeedX() * 6);
-    }
-    else if (leavingGround >= leavingLimit) {
-      leavingGround = 0;
-    }
-    else if (leavingGround > 0) {
-      player.addSpeedY(-gravityAcclr);
-      leavingGround++;
-    }
-  } else {
-    leavingGround = 0;
-  }
+  ((Player) player).resolveJump();
   
   // Move and check physics
   fallCollide(player, platforms);
@@ -148,22 +136,22 @@ void draw() {
   scroll();
   
   // Draw
-  //  Clear screen
+  // -Clear screen
   //background(255); 
   background(230);
   
-  //  Load map
+  // -Load map
   for (Sprite tile : platforms) {
     tile.display();
   }
   
-  //  Load items
+  // -Load items
   for (Sprite item : items) {
     item.display();
     ((AnimatedSprite) item).updateAnimation();
   }
   
-  //  Load deco
+  // -Load deco
   for (Sprite deco : bgDeco) {
     deco.display();
   }
@@ -171,23 +159,29 @@ void draw() {
     deco.display();
   }
   
-  //  Enemies
+  // -Load goals
+  for (Sprite goal : goals) {
+    goal.display();
+  }
+  
+  // -Enemies
   for (Sprite c : creatures) {
     c.display();
     ((AnimatedSprite) c).updateAnimation();
     ((Enemy) c).move(platforms);
+    ((Enemy) c).checkHit(player);
     if (c.getY() > VOID_HEIGHT) {
       c.setVisibility(false);
       c = null;
     }
   }
   
-  //  Player
+  // -Player
   player.display();
   ((AnimatedSprite) player).updateAnimation();
   
-  //  UIs
-  //   Coins
+  // -UIs
+  // --Coins
   coinUi.setX(viewX + tileSize * 1.5);
   coinUi.setY(viewY + tileSize * 1.5);
   coinUi.display();
@@ -196,10 +190,11 @@ void draw() {
   fill(255, 255, 0);
   text(String.format("× %d", coins), viewX + tileSize * 2.5, viewY + tileSize * 1.75);
   
-  //  Debug
+  // -Debug
   if (showHitbox) {
     // Tiles
     stroke(255, 0, 0);
+    fill(0, 0);
     for (Sprite tile : platforms) {
       rect(tile.getLeft(), tile.getTop(), tile.getW(), tile.getH());
     }
@@ -210,7 +205,6 @@ void draw() {
     }
     // Player
     stroke(0, 255, 0);
-    fill(0, 0);
     rect(player.getLeft(), player.getTop(), player.getW(), player.getH());
   }
 }
@@ -230,6 +224,8 @@ void createSpriteList() {
   
   spriteList.put(401, new BlueSlime("data/enemies/slimeBlue/slimeBlue.png", 0, 0, tileScale, 0.5, 0, true));
   spriteList.put(402, new BlueSlime("data/enemies/slimeBlue/slimeBlue.png", 0, 0, tileScale, 0.5, 0, false));
+  
+  spriteList.put(1001, new Sprite("data/flags/flagGreen1.png", tileScale));
 }
 
 // Create platforms sprite from CSV file
@@ -239,6 +235,7 @@ void createPlatforms(String filename) {
   bgDeco = new ArrayList<Sprite> ();
   bgDeco2 = new ArrayList<Sprite> ();
   creatures = new ArrayList<Sprite> ();
+  goals = new ArrayList<Sprite> ();
   float x, y;
   String[] lines = loadStrings(filename);
   for (int row = 0; row < lines.length; row++) {
@@ -281,6 +278,8 @@ void createPlatforms(String filename) {
           Sprite enemy = new BlueSlime(o.getImg(), x, y, o.getScale(), o.getSpeedX(), o.getSpeedY(), ((Enemy) o).getWillWalkOff());
           creatures.add(enemy);
         }
+      } else {
+        goals.add(s);
       }
     }
     println();
@@ -303,7 +302,7 @@ void initPlayer() {
   player.setSpeedY(0);
   viewX = tileSize * 1000;
   viewY = spawnLocation[levelId - 1][1] - tileSize * 16.5;
-  dbRight = dbLeft = dbUp = false;
+  dbRight = dbLeft = dbUp = dbDown = dbSpace = false;
 }
 
 // On Death
@@ -326,6 +325,14 @@ void keyPressed() {
       if (dbUp) return;
       dbUp = true;
     }
+    if (keyCode == DOWN) {
+      if (dbDown) return;
+      dbDown = true;
+    }
+  }
+  if (key == ' ') {
+    if (dbSpace) return;
+    dbSpace = true;
   }
 }
 
@@ -343,6 +350,14 @@ void keyReleased() {
       if (!dbUp) return;
       dbUp = false;
     }
+    if (keyCode == DOWN) {
+      if (!dbDown) return;
+      dbDown = false;
+    }
+  }
+  if (key == ' ') {
+    if (!dbSpace) return;
+    dbSpace = false;
   }
 }
 

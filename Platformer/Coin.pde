@@ -6,11 +6,13 @@ public class Coin extends AnimatedSprite {
   // Constructors
   public Coin(PImage img, float x, float y, float scale) {
     super(img, x, y, scale);
-    standRight = standLeft = new PImage[30];
+    PImage[] standRight = new PImage[30];
+    setStandRight(standRight);
     for (int i = 0; i < 30; i++) {
       standRight[i] = loadImage(String.format("data/coins/normalCoinUnscaled/data/%03d.png", i));
     }
-    currentImages = standRight;
+    setCurrentImages(standRight);
+    setStandLeft(standRight);
     
     super.frameDelay = 4;
   }

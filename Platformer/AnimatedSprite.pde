@@ -1,22 +1,26 @@
 // Animated Sprite
 
+//  Enumerators
+public enum Direction {
+  RIGHT_FACING,
+  LEFT_FACING
+};
+
 public class AnimatedSprite extends Sprite {
   // Attributes
-  protected PImage[] currentImages;
-  protected PImage[] standRight;
-  protected PImage[] standLeft;
-  protected PImage[] moveLeft;
-  protected PImage[] moveRight;
-  private String direction;
+  private PImage[] currentImages;
+  private PImage[] standRight, standLeft, moveLeft, moveRight;
+  private Direction direction;
   private int index;
   private int frame;
   private int frameDelay;
-  private float movingError;
+  protected float movingError;
+  protected boolean isNeutral;
   
   // Constructors
   public AnimatedSprite(PImage img, float x, float y, float scale) {
     super(img, x, y, scale);
-    direction = "STAND_RIGHT";
+    direction = Direction.RIGHT_FACING;
     index = 0;
     frame = 0;
     frameDelay = 5;
@@ -57,32 +61,23 @@ public class AnimatedSprite extends Sprite {
   }
   //  Changes the facing direction based on velocity
   public void selectDirection() {
+    isNeutral = false;
     if (super.changeX > movingError) {
-      direction = "RIGHT";
+      direction = Direction.RIGHT_FACING;
     } else if (super.changeX < -movingError) {
-      direction = "LEFT";
-    } else if (super.changeX > 0) {
-      direction = "STAND_RIGHT";
-    } else if (super.changeX < 0) {
-      direction = "STAND_LEFT";
+      direction = Direction.LEFT_FACING;
     } else {
-      if (direction.charAt(0) == 'R') {
-        direction = "STAND_RIGHT";
-      } else if (direction.charAt(0) == 'L') {
-        direction = "STAND_LEFT";
-      }
+      isNeutral = true;
     }
   }
   //  Changes the displayed images
   public void selectCurrentImages() {
-    if (direction.charAt(0) == 'R') {
-      currentImages = moveRight;
-    } else if (direction.charAt(0) == 'L') {
-      currentImages = moveLeft;
-    } else if (direction.equals("STAND_RIGHT")) {
-      currentImages = standRight;
-    } else if (direction.equals("STAND_LEFT")) {
-      currentImages = standLeft;
+    if (direction == Direction.RIGHT_FACING) {
+      if (isNeutral) currentImages = standRight;
+      else currentImages = moveRight;
+    } else if (direction == Direction.LEFT_FACING) {
+      if (isNeutral) currentImages = standLeft;
+      else currentImages = moveLeft;
     }
   }
   public void advanceToNextImage() {
@@ -95,5 +90,39 @@ public class AnimatedSprite extends Sprite {
       super.sizeW = super.img.width * super.scale;
       super.sizeH = super.img.height * super.scale;
     }
+  }
+  
+  //  Mutators
+  public void setCurrentImages(PImage[] currentImages) {
+    this.currentImages = currentImages;
+  }
+  public void setStandRight(PImage[] standRight) {
+    this.standRight = standRight;
+  }
+  public void setStandLeft(PImage[] standLeft) {
+    this.standLeft = standLeft;
+  }
+  public void setMoveLeft(PImage[] moveLeft) {
+    this.moveLeft = moveLeft;
+  }
+  public void setMoveRight(PImage[] moveRight) {
+    this.moveRight = moveRight;
+  }
+  
+  //  Accessors
+  public PImage[] getCurrentImages() {
+    return currentImages;
+  }
+  public PImage[] getStandRight() {
+    return standRight;
+  }
+  public PImage[] getStandLeft() {
+    return standLeft;
+  }
+  public PImage[] getMoveLeft() {
+    return moveLeft;
+  }
+  public PImage[] getMoveRight() {
+    return moveRight;
   }
 }
