@@ -16,4 +16,7 @@ public class Stopwatch {
   public float getTime() {
     return millis() - currentTime;
   }
+  public float getTimeSeconds() {
+    return (millis() - currentTime) / 1000;
+  }
 }
