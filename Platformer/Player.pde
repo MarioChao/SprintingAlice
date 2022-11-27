@@ -1,4 +1,4 @@
-// Animated Player Class & player functions
+// Animated Player Class
 
 public class Player extends AnimatedSprite {
   // Attributes
@@ -6,8 +6,6 @@ public class Player extends AnimatedSprite {
   private PImage[] duckLeft, duckRight;
   protected boolean isJumping, isDucking;
   private float leavingLimit = 0;
-  float moveSpeed = defaultMoveSpeed;
-  float jumpPower = defaultJumpPower;
   
   // Constructors
   public Player(PImage img, float x, float y, float scale) {
@@ -53,7 +51,7 @@ public class Player extends AnimatedSprite {
   }
   
   // Methods
-  public void resolveJump(boolean forceFullJump) {
+  public void resolveJump() {
     if (touchingGround) {
       isJumping = false;
     }
@@ -61,8 +59,7 @@ public class Player extends AnimatedSprite {
       if (touchingGround && getSpeedY() >= 0) {
         setSpeedY(-jumpPower * 0.75);
         leavingGround = 1;
-        if (forceFullJump) leavingLimit = 18;
-        else leavingLimit = min(abs(getSpeedX() / moveScale * 6), 18);
+        leavingLimit = abs(getSpeedX() * 6 / (moveScale));
         isJumping = true;
       }
       else if (leavingGround >= leavingLimit) {
@@ -77,11 +74,8 @@ public class Player extends AnimatedSprite {
       leavingGround = 0;
     }
   }
-  public void resolveJump() {
-    resolveJump(false);
-  }
   
-  //  Animation
+  //  Override
   @Override
   public void selectDirection() {
     isNeutral = false;
@@ -108,28 +102,5 @@ public class Player extends AnimatedSprite {
       else if (isNeutral) setCurrentImages(getStandLeft());
       else setCurrentImages(getMoveLeft());
     }
-  }
-  
-  // Reset Player
-  void initPlayer() {
-    initPlayerPos();
-    moveSpeed = defaultMoveSpeed;
-    jumpPower = defaultJumpPower;
-  }
-  
-  // Reset Player Position
-  void initPlayerPos() {
-    player.setX(spawnLocation[levelId - 1][0]);
-    player.setY(spawnLocation[levelId - 1][1]);
-    player.setSpeedX(0);
-    player.setSpeedY(0);
-    viewX = tileSize * 1000;
-    viewY = spawnLocation[levelId - 1][1] - tileSize * 16.5;
-    dbRight = dbLeft = dbUp = dbDown = dbSpace = false;
-  }
-
-  // On Death
-  void onDeath() {
-    initPlayerPos();
   }
 }

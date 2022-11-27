@@ -1,4 +1,4 @@
-// Project 1: Create a Platformer Game in Java //<>//
+// Project 1: Create a Platformer Game in Java
 
 // Tiles size
 static float tileSize = 50;
@@ -8,7 +8,7 @@ static float moveScale = tileSize / 25.0;
 // Windows
 float RIGHT_MARGIN = 500 - tileSize;
 float LEFT_MARGIN = 200 + tileSize;
-float VERTICAL_MARGIN = tileSize * 3;
+float VERTICAL_MARGIN = tileSize;
 
 final static int windowWidth = 1000;
 final static int windowHeight = 600;
@@ -17,11 +17,17 @@ float viewX = 0, viewY = 0;
 // Void height
 float VOID_HEIGHT = tileSize * 66;
 
+// Spawn location
+float[][] spawnLocation;
+
+// Level
+int levelId = 1;
+
 // Settings
-boolean showHitbox = false;
+boolean showHitbox = true;
 
 // Sprites
-Player player;
+Sprite player;
 HashMap<Integer, Sprite> spriteList;
 ArrayList<Sprite> platforms, bgDeco, bgDeco2;
 ArrayList<Sprite> items;
@@ -31,18 +37,19 @@ Sprite coinUi;
 
 // Movements
 //  Horizontal
-float defaultMoveSpeed = 3 * moveScale;
-//float moveSpeed;
+float moveSpeed;
 
 //  Vertical
-float defaultJumpPower = 6 * moveScale;
-//float jumpPower;
+float jumpPower;
 
 // UIs
 // Fonts
 PFont ComicSansMS;
 
 // Booleans
+//  Debounces
+boolean dbRight, dbLeft, dbUp, dbDown;
+boolean dbSpace;
 boolean dbMapChng;
 
 //  Conditions
@@ -57,17 +64,25 @@ void setup() {
   
   // Images
   imageMode(CENTER); //<>//
-  player = new Player("data/player.png", (tileSize * 0.93) / 80);
+  player = new Player("data/player.png", (tileSize - 2) / 80);
   createSpriteList();
   coinUi = new Sprite("data/hudCoin.png", (tileSize * 2) / 128);
   
   
   // Preset level and spawns
+  levelId = 3;
   setLevel(levelId);
   initSpawnLocation();
   
-  // Init coordinate and attributes
-  player.initPlayer();
+  // Init coordinate
+  initPlayer();
+  
+  // Movements
+  //  Horizontal
+  moveSpeed = 3 * moveScale;
+  
+  //  Vertical
+  jumpPower = 6 * moveScale;
   
   // UIs
   //  Fonts
@@ -88,43 +103,39 @@ void setup() {
 }
 
 void setLevel(int lvl){
-  createPlatforms("data/maps/map" + lvl + ".csv");
+  if (lvl == 1) createPlatforms("data/maps/map1.csv");
+  if (lvl == 3) createPlatforms("data/maps/map3.csv");
 }
 
 // DRAW
 void draw() {
-  
-  
   // Values
-  // -Horizontal component
+  //  Horizontal component
   double kP = (touchingGround ? 0.07 : 0.045);
   double error = 0;
-  if ((player.isDucking && touchingGround)) {
-    error = -player.getSpeedX();
-  } else if ((dbRight || dbLeft) && !(dbRight && dbLeft)) {
-    if (dbRight) error = player.moveSpeed - player.getSpeedX();
-    else if (dbLeft) error = -player.moveSpeed - player.getSpeedX();
-  } else if (!player.isDucking) {
+  if ((dbRight || dbLeft) && !(dbRight && dbLeft)) {
+    if (dbRight) error = moveSpeed - player.getSpeedX();
+    else if (dbLeft) error = -moveSpeed - player.getSpeedX();
+  } else {
     error = -player.getSpeedX();
   }
   player.setSpeedX(player.getSpeedX() + (float) (error * kP));
   
-  // -Vertical component
-  // --Jump
-  player.resolveJump();
+  //  Vertical component
+  //player.addSpeedY(gravityAcclr);
+  //   Jump
+  ((Player) player).resolveJump();
   
   // Move and check physics
-  fallCollide(player, platforms); // Move player
-  checkItemCollisions(player, items); // Check items
-  for (Sprite goal : player.getCollided(goals)) { // Check goals
-    ((Goal) goal).onTouch();
-    break;
-  }
-  touchingGround = checkTouchGround(player, platforms);
+  fallCollide(player, platforms);
+  checkItemCollisions(player, items);
+  player.addY(5);
+  touchingGround = player.getCollided(platforms).size() > 0;
+  player.addY(-5);
   
   // Player death
   if (player.getY() > VOID_HEIGHT) {
-    player.onDeath();
+    onDeath();
   }
   
   // Move screen
@@ -212,18 +223,16 @@ void createSpriteList() {
   spriteList.put(3, new Sprite("data/crate.png", tileScale));
   
   spriteList.put(101, new Coin("data/coins/normalCoinUnscaled/mergedimage.png", tileSize / 240));
-  spriteList.put(102, new PowerUp("data/moon_full.png", tileSize / 90));
-  spriteList.put(103, new PowerUp("data/cloud1.png", tileSize / 190));
+  spriteList.put(102, new PowerUp("data/moon_full.png", tileScale));
   
-  spriteList.put(201, new Sprite("data/sun.png", tileSize / 90 * 2));
+  spriteList.put(201, new Sprite("data/sun.png"));
   
   spriteList.put(301, new Sprite("data/snow.png", tileScale));
   
-  spriteList.put(401, new BlueSlime("data/enemies/slimeBlue/slimeBlue.png", 0, 0, tileScale, 0.5, 0, new EnemySettings(true)));
-  spriteList.put(402, new BlueSlime("data/enemies/slimeBlue/slimeBlue.png", 0, 0, tileScale, 0.5, 0, new EnemySettings(false)));
-  spriteList.put(403, new BlackFly("data/enemies/flyBlack/fly.png", 0, 0, tileScale, 0, 0, new EnemySettings(false, true, true)));
+  spriteList.put(401, new BlueSlime("data/enemies/slimeBlue/slimeBlue.png", 0, 0, tileScale, 0.5, 0, true));
+  spriteList.put(402, new BlueSlime("data/enemies/slimeBlue/slimeBlue.png", 0, 0, tileScale, 0.5, 0, false));
   
-  spriteList.put(1001, new Goal("data/flags/flagGreen1.png", tileScale));
+  spriteList.put(1001, new Sprite("data/flags/flagGreen1.png", tileScale));
 }
 
 // Create platforms sprite from CSV file
@@ -261,13 +270,12 @@ void createPlatforms(String filename) {
         if (index == 101) {
           Coin c = new Coin(s.getImg(), x, y, s.getScale());
           items.add(c);
-        } else if (index == 102){
-          PowerUp p = new JumpBoost(s.getImg(), x, y, s.getScale());
-          items.add(p);
-        } else if (index == 103) {
+        }
+        else if (index == 102){
           PowerUp p = new SpeedBoost(s.getImg(), x, y, s.getScale());
           items.add(p);
-        } else {
+        }
+        else {
           items.add(s);
         }
       } else if (index <= 300) {
@@ -275,21 +283,94 @@ void createPlatforms(String filename) {
       } else if (index <= 400) {
         bgDeco2.add(s);
       } else if (index <= 500) {
-        Sprite enemy = new Enemy(o.getImg(), x, y, o.getScale(), o.getSpeedX(), o.getSpeedY());
         if (index == 401) {
-          enemy = new BlueSlime(o.getImg(), x, y, o.getScale(), o.getSpeedX(), o.getSpeedY(), ((Enemy) o).getEnemyInfo());
+          Sprite enemy = new BlueSlime(o.getImg(), x, y, o.getScale(), o.getSpeedX(), o.getSpeedY(), ((Enemy) o).getWillWalkOff());
+          creatures.add(enemy);
         } else if (index == 402) {
-          enemy = new BlueSlime(o.getImg(), x, y, o.getScale(), o.getSpeedX(), o.getSpeedY(), ((Enemy) o).getEnemyInfo());
-        } else if (index == 403) {
-          enemy = new BlackFly(o.getImg(), x, y, o.getScale(), o.getSpeedX(), o.getSpeedY(), ((Enemy) o).getEnemyInfo());
+          Sprite enemy = new BlueSlime(o.getImg(), x, y, o.getScale(), o.getSpeedX(), o.getSpeedY(), ((Enemy) o).getWillWalkOff());
+          creatures.add(enemy);
         }
-        creatures.add(enemy);
       } else {
-        Goal g = new Goal(s.getImg(), x, y, s.getScale());
-        goals.add(g);
+        goals.add(s);
       }
     }
     println();
+  }
+}
+
+// Set spawn location
+void initSpawnLocation() {
+  spawnLocation = new float[5][2]; // 5 levels, {x, y}
+  spawnLocation[0][0] = tileSize * 29.5;
+  spawnLocation[0][1] = tileSize * 51.5;
+  spawnLocation[2][0] = tileSize * 1.5;
+  spawnLocation[2][1] = tileSize * 17.5;
+}
+
+// Reset Player Position
+void initPlayer() {
+  player.setX(spawnLocation[levelId - 1][0]);
+  player.setY(spawnLocation[levelId - 1][1]);
+  player.setSpeedX(0);
+  player.setSpeedY(0);
+  viewX = tileSize * 1000;
+  viewY = spawnLocation[levelId - 1][1] - tileSize * 16.5;
+  dbRight = dbLeft = dbUp = dbDown = dbSpace = false;
+}
+
+// On Death
+void onDeath() {
+  initPlayer();
+}
+
+// Keyboard inputs
+void keyPressed() {
+  if (key == CODED) {
+    if (keyCode == RIGHT) {
+      if (dbRight) return;
+      dbRight = true;
+    }
+    if (keyCode == LEFT) {
+      if (dbLeft) return;
+      dbLeft = true;
+    }
+    if (keyCode == UP) {
+      if (dbUp) return;
+      dbUp = true;
+    }
+    if (keyCode == DOWN) {
+      if (dbDown) return;
+      dbDown = true;
+    }
+  }
+  if (key == ' ') {
+    if (dbSpace) return;
+    dbSpace = true;
+  }
+}
+
+void keyReleased() {
+  if (key == CODED) {
+    if (keyCode == RIGHT) {
+      if (!dbRight) return;
+      dbRight = false;
+    }
+    if (keyCode == LEFT) {
+      if (!dbLeft) return;
+      dbLeft = false;
+    }
+    if (keyCode == UP) {
+      if (!dbUp) return;
+      dbUp = false;
+    }
+    if (keyCode == DOWN) {
+      if (!dbDown) return;
+      dbDown = false;
+    }
+  }
+  if (key == ' ') {
+    if (!dbSpace) return;
+    dbSpace = false;
   }
 }
 
@@ -297,6 +378,7 @@ void checkItemCollisions(Sprite plyr, ArrayList<Sprite> items) {
   ArrayList<Sprite> col_list = plyr.getCollided(items);
   for (Sprite collided : col_list) {
     collided.setVisibility(false);
+    
   }
 }
 

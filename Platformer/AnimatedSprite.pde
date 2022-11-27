@@ -8,7 +8,7 @@ public enum Direction {
 
 public class AnimatedSprite extends Sprite {
   // Attributes
-  private PImage[] currentImages, previousImages;
+  private PImage[] currentImages;
   private PImage[] standRight, standLeft, moveLeft, moveRight;
   private Direction direction;
   private int index;
@@ -51,16 +51,13 @@ public class AnimatedSprite extends Sprite {
   // Methods
   //  Updates animation to facing left, right, etc. and go through frames
   public void updateAnimation() {
-    // Put before the frameDelay check in order to detect changes in currentImages
-    selectDirection();
-    selectCurrentImages();
-    // Update images or animation frames
     frame++;
-    if (frame % frameDelay == 0 || previousImages != currentImages) {
+    if (frame % frameDelay == 0) {
+      selectDirection();
+      selectCurrentImages();
       advanceToNextImage();
       frame = 0;
     }
-    previousImages = currentImages;
   }
   //  Changes the facing direction based on velocity
   public void selectDirection() {

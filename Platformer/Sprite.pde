@@ -175,7 +175,7 @@ public class Sprite {
   
   //  Functions
   public boolean isColliding(Sprite other) {
-    if (other.visible == false) return false;
+    if (!other.visible) return false;
     boolean isNotCollidingX = getRight() <= other.getLeft() || getLeft() >= other.getRight();
     boolean isNotCollidingY = getBottom() <= other.getTop() || getTop() >= other.getBottom();
     return !(isNotCollidingX || isNotCollidingY);
