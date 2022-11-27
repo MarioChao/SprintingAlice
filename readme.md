@@ -15,13 +15,7 @@ Allie, who was quite experienced with navigating platforms, was going to be the 
 ## Rules
 Go around each level and find a goal flag to complete it.
 <br/>
-When you fall off the map, you'll start over from a save-point.
-The blue slimes are cute and are harmless. Try not to kill them.
+You start with 3 lives, and after you died 3 times, you'll start over from a save-point.
 
 ## Instructions
-Use arrow keys to move the player. Use the space key to jump.
-
-## Hints
-Each level has some deep and definitely intentional symbolism about pride. Try to figure it out.
-<br/>
-In the third level, each moon-shaped powerup will increase your jump height. There are three in total. You will also need figure out the map through trial-and-error.
+Use arrow keys to move the player and jump.

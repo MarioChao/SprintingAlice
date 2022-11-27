@@ -1,9 +1,12 @@
+// Powerup Classes
+
 public class PowerUp extends AnimatedSprite{
   // Constructors
   public PowerUp(PImage img, float x, float y, float scale) {
     super(img, x, y, scale);
-    PImage[] a = new PImage[] {img};
-    setStandRight(a);
+    PImage[] p = new PImage[] {img};
+    setStandRight(p);
+    setCurrentImages(p);
   }
   public PowerUp(PImage img, float x, float y) {
     this(img, x, y, 1);
@@ -17,25 +20,46 @@ public class PowerUp extends AnimatedSprite{
   public PowerUp(String filename, float scale) {
     this(filename, 0, 0, scale);
   }
-  public void activatePower(){
-  }
   // Methods
+  @Override
   public void setVisibility(boolean visible) {
-    print("jumpPower: " + jumpPower);
     super.setVisibility(visible);
     if (!visible) activatePower();
+  }
+  public void activatePower(){
+  }
+}
+
+public class JumpBoost extends PowerUp{
+  // Constructors
+  public JumpBoost(PImage img, float x, float y, float scale){
+    super(img, x, y, scale);
+  }
+  public JumpBoost(String filename, float scale){
+    super(filename, scale);
+  }
+  
+  // Methods
+  @Override
+  public void activatePower(){
+    player.jumpPower += moveScale;
+    println("new jumpPower: " + player.jumpPower);
   }
 }
 
 public class SpeedBoost extends PowerUp{
-  public SpeedBoost(String filename, float scale){
-    super(filename, scale);
-  }
+  // Constructors
   public SpeedBoost(PImage img, float x, float y, float scale){
     super(img, x, y, scale);
   }
+  public SpeedBoost(String filename, float scale){
+    super(filename, scale);
+  }
+  
+  // Methods
   @Override
   public void activatePower(){
-    jumpPower += moveScale;
+    player.moveSpeed += moveScale / 5;
+    println("new moveSpeed: " + player.moveSpeed);
   }
 }
