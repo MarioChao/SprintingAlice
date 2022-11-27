@@ -1,4 +1,4 @@
-// Animated Player Class
+// Animated Player Class & player functions
 
 public class Player extends AnimatedSprite {
   // Attributes
@@ -6,6 +6,9 @@ public class Player extends AnimatedSprite {
   private PImage[] duckLeft, duckRight;
   protected boolean isJumping, isDucking;
   private float leavingLimit = 0;
+  private int lives = 3;
+  float moveSpeed = defaultMoveSpeed;
+  float jumpPower = defaultJumpPower;
   
   // Constructors
   public Player(PImage img, float x, float y, float scale) {
@@ -51,7 +54,7 @@ public class Player extends AnimatedSprite {
   }
   
   // Methods
-  public void resolveJump() {
+  public void resolveJump(boolean forceFullJump) {
     if (touchingGround) {
       isJumping = false;
     }
@@ -59,7 +62,8 @@ public class Player extends AnimatedSprite {
       if (touchingGround && getSpeedY() >= 0) {
         setSpeedY(-jumpPower * 0.75);
         leavingGround = 1;
-        leavingLimit = abs(getSpeedX() * 6 / (moveScale));
+        if (forceFullJump) leavingLimit = 18;
+        else leavingLimit = min(abs(getSpeedX() / moveScale * 6), 18);
         isJumping = true;
       }
       else if (leavingGround >= leavingLimit) {
@@ -74,8 +78,11 @@ public class Player extends AnimatedSprite {
       leavingGround = 0;
     }
   }
+  public void resolveJump() {
+    resolveJump(false);
+  }
   
-  //  Override
+  //  Animation
   @Override
   public void selectDirection() {
     isNeutral = false;
@@ -102,5 +109,33 @@ public class Player extends AnimatedSprite {
       else if (isNeutral) setCurrentImages(getStandLeft());
       else setCurrentImages(getMoveLeft());
     }
+  }
+  
+  // Reset Player
+  void initPlayer() {
+    initPlayerPos();
+    moveSpeed = defaultMoveSpeed;
+    jumpPower = defaultJumpPower;
+  }
+  
+  // Reset Player Position
+  void initPlayerPos() {
+    player.setX(spawnLocation[levelId - 1][0]);
+    player.setY(spawnLocation[levelId - 1][1]);
+    player.setSpeedX(0);
+    player.setSpeedY(0);
+    viewX = tileSize * 1000;
+    viewY = spawnLocation[levelId - 1][1] - tileSize * 16.5;
+    dbRight = dbLeft = dbUp = dbDown = dbSpace = false;
+  }
+
+  // On Death
+  void onDeath() {
+    lives--;
+    if (lives < 1) {
+      isGameOver = true;
+      return;
+    }
+    initPlayerPos();
   }
 }
