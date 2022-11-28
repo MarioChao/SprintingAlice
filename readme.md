@@ -29,4 +29,4 @@ In the second level, each cloud-shaped powerup will increase your x velocity.
 <br/>
 In the third level, each moon-shaped powerup will increase your jump height.
 <br/>
-It is easy to see where you're going in the first level, but it is... much harder... in the second level.
+It is easy to see where you're going in the first level, but it is... much harder... in the second and third levels.
