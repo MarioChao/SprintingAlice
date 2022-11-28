@@ -29,6 +29,7 @@ public class Goal extends AnimatedSprite {
     nextLevel();
   }
   public void nextLevel() {
+    player.initPlayerPowerup();
     levelId++;
     if (levelId > totalLevel) {
       levelId = 1;
@@ -36,6 +37,6 @@ public class Goal extends AnimatedSprite {
       return;
     }
     setLevel(levelId);
-    player.initPlayer();
+    player.initPlayerPos();
   } 
 }

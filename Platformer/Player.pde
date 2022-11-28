@@ -114,9 +114,17 @@ public class Player extends AnimatedSprite {
   // Reset Player
   void initPlayer() {
     initPlayerPos();
-    moveSpeed = defaultMoveSpeed;
-    jumpPower = defaultJumpPower;
+    initPlayerPowerup();
     lives = 3;
+  }
+  
+  void initPlayerPowerup() {
+    for (Sprite power : items) {
+      try {
+        ((PowerUp) power).removePower();
+      } catch (Exception ex) {
+      }
+    }
   }
   
   // Reset Player Position
