@@ -116,6 +116,7 @@ public class Player extends AnimatedSprite {
     initPlayerPos();
     moveSpeed = defaultMoveSpeed;
     jumpPower = defaultJumpPower;
+    lives = 3;
   }
   
   // Reset Player Position
