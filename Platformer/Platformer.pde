@@ -43,7 +43,7 @@ float defaultJumpPower = 6 * moveScale;
 PFont ComicSansMS;
 
 // Booleans
-boolean isGameOver = false, isGameEnd = false;
+boolean isGameOver = false, isGameEnd = false, isGameLoading = false, isGameLoaded;
 
 //  Conditions
 boolean touchingGround;
@@ -88,11 +88,47 @@ void setup() {
 }
 
 void setLevel(int lvl){
+  isGameLoaded = false;
   createPlatforms("data/maps/map" + lvl + ".csv");
+  isGameLoaded = true;
 }
 
 // DRAW
 void draw() {
+  // Game check
+  translate(0, 0);
+  if (isGameOver) {
+    textAlign(CENTER);
+    textFont(ComicSansMS);
+    fill(255, 0, 0);
+    text("GAME OVER", width / 2, height / 2);
+    fill(0);
+    text("Press Space to restart", width / 2, height / 2 + tileSize);
+    noLoop();
+  } else if (isGameEnd) {
+    textAlign(CENTER);
+    textFont(ComicSansMS);
+    fill(0);
+    text("YOU REACHED THE END!", width / 2, height / 2 - tileSize);
+    fill(0);
+    text("THANK YOU FOR PLAYING!", width / 2, height / 2);
+    noLoop();
+  } else if (isGameLoading) {
+    textAlign(CENTER);
+    textFont(ComicSansMS);
+    fill(0);
+    text("Loading...", width / 2, height / 2 + 2 * tileSize);
+    isGameLoading = false;
+    isGameLoaded = false;
+  } else if (!isGameLoaded) {
+    player.initPlayer();
+    setLevel(levelId);
+    coins = 0;
+  } else {
+    draw2();
+  }
+}
+void draw2() {
   // Values
   // -Horizontal component
   double kP = (touchingGround ? 0.07 : 0.045);
@@ -205,25 +241,6 @@ void draw() {
     // Player
     stroke(0, 255, 0);
     rect(player.getLeft(), player.getTop(), player.getW(), player.getH());
-  }
-  
-  // Game check
-  if (isGameOver) {
-    textAlign(CENTER);
-    textFont(ComicSansMS);
-    fill(255, 0, 0);
-    text("GAME OVER", viewX + width / 2, viewY + height / 2);
-    fill(0);
-    text("Press Space to restart", viewX + width / 2, viewY + height / 2 + tileSize);
-    noLoop();
-  } else if (isGameEnd) {
-    textAlign(CENTER);
-    textFont(ComicSansMS);
-    fill(0);
-    text("YOU REACHED THE END!", viewX + width / 2, viewY + height / 2 - tileSize);
-    fill(0);
-    text("THANK YOU FOR PLAYING!", viewX + width / 2, viewY + height / 2);
-    noLoop();
   }
 }
 

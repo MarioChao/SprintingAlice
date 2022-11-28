@@ -53,9 +53,7 @@ void keyReleased() {
     if (!dbSpace) return;
     if (isGameOver) {
       isGameOver = false;
-      player.initPlayer();
-      setLevel(levelId);
-      coins = 0;
+      isGameLoading = true;
       loop();
     }
     dbSpace = false;
