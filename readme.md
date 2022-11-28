@@ -15,13 +15,18 @@ Allie, who was quite experienced with navigating platforms, was going to be the 
 ## Rules
 Go around each level and find a goal flag to complete it.
 <br/>
-When you fall off the map, you'll start over from a save-point.
+When you fall off the map, you'll start over from a save-point. When you run out of lives, you still start over from a save-point, but you also lose your coins.
+<br/>
 The blue slimes are cute and are harmless. Try not to kill them.
 
 ## Instructions
-Use arrow keys to move the player. Use the space key to jump.
+Use arrow keys to move the player. Use the space key to jump. The jump height depends on the x-velocity because Mario doesn't understand how momentum works. (just kidding, it is a unique and interesting feature)
 
 ## Hints
 Each level has some deep and definitely intentional symbolism about pride. Try to figure it out.
 <br/>
-In the third level, each moon-shaped powerup will increase your jump height. There are three in total. You will also need figure out the map through trial-and-error.
+In the second level, each cloud-shaped powerup will increase your x velocity.
+<br/>
+In the third level, each moon-shaped powerup will increase your jump height.
+<br/>
+It is easy to see where you're going in the first level, but it is... much harder... in the second level.
