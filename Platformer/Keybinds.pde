@@ -51,7 +51,12 @@ void keyReleased() {
   }
   if (key == ' ') {
     if (!dbSpace) return;
-    if (isGameOver) {
+    if ((isGameEnd && levelId > 0)) {
+      initialLevel = 0;
+      isGameEnd = false;
+      isGameLoading = true;
+      loop();
+    } else if (isGameOver || (isGameEnd && levelId > 0)) {
       isGameOver = false;
       isGameLoading = true;
       loop();

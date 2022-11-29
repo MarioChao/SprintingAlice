@@ -1,12 +1,14 @@
 // Animated Player Class & player functions
 
+final static int defaultLives = 3;
+
 public class Player extends AnimatedSprite {
   // Attributes
   private PImage[] jumpLeft, jumpRight;
   private PImage[] duckLeft, duckRight;
   protected boolean isJumping, isDucking;
   private float leavingLimit = 0;
-  private int lives = 3;
+  private int lives;
   float moveSpeed = defaultMoveSpeed;
   float jumpPower = defaultJumpPower;
   
@@ -115,7 +117,7 @@ public class Player extends AnimatedSprite {
   void initPlayer() {
     initPlayerPos();
     initPlayerPowerup();
-    lives = 3;
+    lives = defaultLives;
   }
   
   void initPlayerPowerup() {
@@ -129,19 +131,20 @@ public class Player extends AnimatedSprite {
   
   // Reset Player Position
   void initPlayerPos() {
-    player.setX(spawnLocation[levelId - 1][0]);
-    player.setY(spawnLocation[levelId - 1][1]);
+    player.setX(spawnLocation.get(levelId)[0]);
+    player.setY(spawnLocation.get(levelId)[1]);
     player.setSpeedX(0);
     player.setSpeedY(0);
     viewX = tileSize * 1000;
-    viewY = spawnLocation[levelId - 1][1] - tileSize * 16.5;
+    viewY = spawnLocation.get(levelId)[1] - tileSize * 16.5;
     dbRight = dbLeft = dbUp = dbDown = dbSpace = false;
   }
 
   // On Death
   void onDeath() {
+    if (lives == 0) return;
     lives--;
-    if (lives < 1) {
+    if (lives == 0) {
       isGameOver = true;
       return;
     }

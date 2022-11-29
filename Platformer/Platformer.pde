@@ -18,6 +18,7 @@ float viewX = 0, viewY = 0;
 float VOID_HEIGHT = tileSize * 66;
 
 // Settings
+boolean printMap = false;
 boolean showHitbox = false;
 
 // Sprites
@@ -43,7 +44,9 @@ float defaultJumpPower = 6 * moveScale;
 PFont ComicSansMS;
 
 // Booleans
-boolean isGameOver = false, isGameEnd = false, isGameLoading = false, isGameLoaded;
+boolean isGameOver = false, isGameEnd = false,
+isGameLoading = false, isGameLoaded = false,
+loadingDb;
 
 //  Conditions
 boolean touchingGround;
@@ -62,8 +65,8 @@ void setup() {
   coinHud = new Sprite("data/hud/hudCoin.png", tileScale * 2);
   heartHud = new Sprite("data/hud/hudHeart_full.png", tileScale * 2);
   
-  
   // Preset level and spawns
+  levelId = initialLevel;
   setLevel(levelId);
   initSpawnLocation();
   
@@ -89,6 +92,7 @@ void setup() {
 
 void setLevel(int lvl){
   isGameLoaded = false;
+  println("Level " + lvl);
   createPlatforms("data/maps/map" + lvl + ".csv");
   isGameLoaded = true;
 }
@@ -117,14 +121,20 @@ void draw() {
     textAlign(CENTER);
     textFont(ComicSansMS);
     fill(0);
-    text("Loading...", width / 2, height / 2 + 2 * tileSize);
+    text("Loading...", width / 2, height - tileSize);
     isGameLoading = false;
     isGameLoaded = false;
+    loadingDb = false;
   } else if (!isGameLoaded) {
-    player.initPlayer();
-    setLevel(levelId);
-    coins = 0;
-  } else {
+    if (!loadingDb) {
+      loadingDb = true;
+      levelId = initialLevel;
+      player.initPlayer();
+      setLevel(levelId);
+      coins = 0;
+      loadingDb = false;
+    }
+  } else if (isGameLoaded) {
     draw2();
   }
 }
@@ -249,7 +259,7 @@ void createSpriteList() {
   spriteList = new HashMap<Integer, Sprite> ();
   spriteList.put(1, new Sprite("data/brown_brick.png", tileScale));
   spriteList.put(2, new Sprite("data/red_brick.png", tileScale));
-  spriteList.put(3, new Sprite("data/crate.png", tileScale));
+  spriteList.put(3, new Sprite("data/boxCrate_double.png", tileScale));
   
   spriteList.put(101, new Coin("data/coins/normalCoinUnscaled/mergedimage.png", tileSize / 240));
   spriteList.put(102, new PowerUp("data/moon_full.png", tileSize / 90));
@@ -258,6 +268,8 @@ void createSpriteList() {
   spriteList.put(201, new Sprite("data/sun.png", tileSize / 90 * 2));
   
   spriteList.put(301, new Sprite("data/snow.png", tileScale));
+  spriteList.put(311, new Sprite("data/signRight.png", tileScale));
+  spriteList.put(312, new Sprite("data/signLeft.png", tileScale));
   
   spriteList.put(401, new BlueSlime("data/enemies/slimeBlue/slimeBlue.png", 0, 0, tileScale, 0.5, 0, new EnemySettings(true)));
   spriteList.put(402, new BlueSlime("data/enemies/slimeBlue/slimeBlue.png", 0, 0, tileScale, 0.5, 0, new EnemySettings(false)));
@@ -286,7 +298,7 @@ void createPlatforms(String filename) {
         value = value.substring(1);
       }
       if (value.length() == 0) continue;
-      print(value);
+      if(printMap) print(value);
       // Get coordinate
       x = col * tileSize + tileSize / 2.0;
       y = row * tileSize + tileSize / 2.0;
@@ -329,7 +341,7 @@ void createPlatforms(String filename) {
         goals.add(g);
       }
     }
-    println();
+    if (printMap) println();
   }
 }
 

@@ -30,11 +30,18 @@ public class Goal extends AnimatedSprite {
   }
   public void nextLevel() {
     player.initPlayerPowerup();
-    levelId++;
-    if (levelId > totalLevel) {
-      levelId = 1;
-      isGameEnd = true;
-      return;
+    if (levelId > 0) {
+      levelId++;
+      if (levelId == totalLevel + 1) {
+        isGameEnd = true;
+        return;
+      }
+    } else {
+      levelId--;
+      if (levelId == -10) {
+        isGameEnd = true;
+        return;
+      }
     }
     setLevel(levelId);
     player.initPlayerPos();
