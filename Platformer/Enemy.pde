@@ -27,19 +27,26 @@ public class EnemySettings {
 // Enemy Class
 public class Enemy extends AnimatedSprite {
   // Attributes
-  private EnemySettings enemyInfo;
+  private EnemySettings defaultInfo, enemyInfo;
   private PImage[] hitRight, hitLeft;
   protected boolean isHit;
   private int hitFrames;
+  private float spawnX, spawnY;
+  private float defaultSpeedX, defaultSpeedY;
   
   // Constructors
   public Enemy(PImage img, float x, float y, float scale, float dx, float dy, EnemySettings info) {
     super(img, x, y, scale);
     setSpeedX(dx * moveScale);
     setSpeedY(dy);
+    defaultInfo = new EnemySettings(info.willWalkOff, info.canBeStepped, info.canFly);
     enemyInfo = new EnemySettings(info.willWalkOff, info.canBeStepped, info.canFly);
     isHit = false;
     hitFrames = 0;
+    spawnX = x;
+    spawnY = y;
+    defaultSpeedX = dx;
+    defaultSpeedY = dy;
     
     super.frameDelay = 30;
   }
@@ -78,6 +85,18 @@ public class Enemy extends AnimatedSprite {
       touchingGround = true;
       player.resolveJump(true);
     }
+  }
+  public void respawn() {
+    setVisibility(true);
+    setX(spawnX);
+    setY(spawnY);
+    setSpeedX(defaultSpeedX);
+    setSpeedY(defaultSpeedY);
+    isHit = false;
+    hitFrames = 0;
+    enemyInfo.willWalkOff = defaultInfo.willWalkOff;
+    enemyInfo.canBeStepped = defaultInfo.canBeStepped;
+    enemyInfo.canFly = defaultInfo.canFly;
   }
   
   //  Mutators

@@ -1,6 +1,6 @@
 // Animated Player Class & player functions
 
-final static int defaultLives = 3;
+final static int defaultLives = 5;
 
 public class Player extends AnimatedSprite {
   // Attributes
@@ -149,5 +149,8 @@ public class Player extends AnimatedSprite {
       return;
     }
     initPlayerPos();
+    for (Sprite e : creatures) {
+      ((Enemy) e).respawn();
+    }
   }
 }

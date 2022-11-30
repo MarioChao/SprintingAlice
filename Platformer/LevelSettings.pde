@@ -21,5 +21,5 @@ void initSpawnLocation() {
   
   // Negative levels
   // Level 0
-  spawnLocation.put(1, new Float[] {tileSize * 29.5, tileSize * 56.5});
+  spawnLocation.put(0, new Float[] {tileSize * 152.5, tileSize * 12.5});
 }

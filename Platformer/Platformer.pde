@@ -201,6 +201,7 @@ void draw2() {
   // -Load goals
   for (Sprite goal : goals) {
     goal.display();
+    ((AnimatedSprite) goal).updateAnimation();
   }
   
   // -Enemies
@@ -211,7 +212,6 @@ void draw2() {
     ((Enemy) c).checkHit(player);
     if (c.getY() > VOID_HEIGHT) {
       c.setVisibility(false);
-      c = null;
     }
   }
   
@@ -275,7 +275,8 @@ void createSpriteList() {
   spriteList.put(402, new BlueSlime("data/enemies/slimeBlue/slimeBlue.png", 0, 0, tileScale, 0.5, 0, new EnemySettings(false)));
   spriteList.put(403, new BlackFly("data/enemies/flyBlack/fly.png", 0, 0, tileScale, 0, 0, new EnemySettings(false, true, true)));
   
-  spriteList.put(1001, new Goal("data/flags/flagGreen1.png", tileScale));
+  spriteList.put(1001, new Goal("data/flags/flagGreen1.png", "Green", tileScale));
+  spriteList.put(1100, new Goal("data/flags/flagPole.png", "Pole", tileScale));
 }
 
 // Create platforms sprite from CSV file
@@ -337,7 +338,7 @@ void createPlatforms(String filename) {
         }
         creatures.add(enemy);
       } else {
-        Goal g = new Goal(s.getImg(), x, y, s.getScale());
+        Goal g = new Goal(s.getImg(), ((Goal) o).getType(), x, y, s.getScale());
         goals.add(g);
       }
     }
