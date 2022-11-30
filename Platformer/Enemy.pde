@@ -90,7 +90,7 @@ public class Enemy extends AnimatedSprite {
     setVisibility(true);
     setX(spawnX);
     setY(spawnY);
-    setSpeedX(defaultSpeedX);
+    setSpeedX(defaultSpeedX * moveScale);
     setSpeedY(defaultSpeedY);
     isHit = false;
     hitFrames = 0;
@@ -139,6 +139,12 @@ public class Enemy extends AnimatedSprite {
       else if (isNeutral) setCurrentImages(getStandLeft());
       else setCurrentImages(getMoveLeft());
     }
+  }
+  @Override
+  public void setScale(float newScale) {
+    super.setScale(newScale);
+    setSpeedX(defaultSpeedX * moveScale);
+    setSpeedY(defaultSpeedY);
   }
 }
 

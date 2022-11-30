@@ -153,4 +153,10 @@ public class Player extends AnimatedSprite {
       ((Enemy) e).respawn();
     }
   }
+  
+  // Initialize physics info
+  void initPlayerPhysics() {
+    moveSpeed = defaultMoveSpeed;
+    jumpPower = defaultJumpPower;
+  }
 }

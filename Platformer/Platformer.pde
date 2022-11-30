@@ -6,16 +6,14 @@ static float tileScale = tileSize / 128.0;
 static float moveScale = tileSize / 25.0;
 
 // Windows
-float RIGHT_MARGIN = 500 - tileSize;
-float LEFT_MARGIN = 200 + tileSize;
-float VERTICAL_MARGIN = tileSize * 3;
+static float RIGHT_MARGIN = 500 - tileSize;
+static float LEFT_MARGIN = 200 + tileSize;
+static float VERTICAL_MARGIN = tileSize * 3;
 
-final static int windowWidth = 1000;
-final static int windowHeight = 600;
 float viewX = 0, viewY = 0;
 
 // Void height
-float VOID_HEIGHT = tileSize * 66;
+static float VOID_HEIGHT = tileSize * 66;
 
 // Settings
 boolean printMap = false;
@@ -46,7 +44,7 @@ PFont ComicSansMS;
 // Booleans
 boolean isGameOver = false, isGameEnd = false,
 isGameLoading = false, isGameLoaded = false,
-loadingDb;
+isNewLevel = false, loadingDb;
 
 //  Conditions
 boolean touchingGround;
@@ -67,8 +65,9 @@ void setup() {
   
   // Preset level and spawns
   levelId = initialLevel;
-  setLevel(levelId);
+  initLevelSettings();
   initSpawnLocation();
+  setLevel(levelId);
   
   // Init coordinate and attributes
   player.initPlayer();
@@ -88,13 +87,6 @@ void setup() {
   //  Conditions
   touchingGround = false;
   leavingGround = 0;
-}
-
-void setLevel(int lvl){
-  isGameLoaded = false;
-  println("Level " + lvl);
-  createPlatforms("data/maps/map" + lvl + ".csv");
-  isGameLoaded = true;
 }
 
 // DRAW
@@ -129,9 +121,14 @@ void draw() {
     if (!loadingDb) {
       loadingDb = true;
       levelId = initialLevel;
-      player.initPlayer();
+      if (isNewLevel) {
+        player.initPlayerPos();
+        player.initPlayerPowerup();
+      } else {
+        player.initPlayer();
+        coins = 0;
+      }
       setLevel(levelId);
-      coins = 0;
       loadingDb = false;
     }
   } else if (isGameLoaded) {
@@ -139,6 +136,9 @@ void draw() {
   }
 }
 void draw2() {
+  // Resize
+  cameraZoom();
+  
   // Values
   // -Horizontal component
   double kP = (touchingGround ? 0.07 : 0.045);
@@ -177,7 +177,7 @@ void draw2() {
   // Draw
   // -Clear screen
   //background(255); 
-  background(230);
+  background(backgroundColor.getOrDefault(levelId, new Color(230, 230, 230)).getRGB());
   
   // -Load map
   for (Sprite tile : platforms) {
@@ -259,7 +259,9 @@ void createSpriteList() {
   spriteList = new HashMap<Integer, Sprite> ();
   spriteList.put(1, new Sprite("data/brown_brick.png", tileScale));
   spriteList.put(2, new Sprite("data/red_brick.png", tileScale));
-  spriteList.put(3, new Sprite("data/boxCrate_double.png", tileScale));
+  spriteList.put(3, new Sprite("data/crates/boxCrate_double.png", tileScale));
+  spriteList.put(4, new Sprite("data/crates/boxCrate_single.png", tileScale));
+  spriteList.put(5, new Sprite("data/crates/boxCrate.png", tileScale));
   
   spriteList.put(101, new Coin("data/coins/normalCoinUnscaled/mergedimage.png", tileSize / 240));
   spriteList.put(102, new PowerUp("data/moon_full.png", tileSize / 90));
@@ -352,25 +354,4 @@ void checkItemCollisions(Sprite plyr, ArrayList<Sprite> items) {
   for (Sprite collided : col_list) {
     collided.setVisibility(false);
   }
-}
-
-// Scroll screen
-void scroll() {
-  float rightBoundary = viewX + width - RIGHT_MARGIN;
-  if (player.getRight() > rightBoundary) {
-    viewX += player.getRight() - rightBoundary;
-  }
-  float leftBoundary = viewX + LEFT_MARGIN;
-  if (player.getLeft() < leftBoundary) {
-    viewX -= leftBoundary - player.getLeft();
-  }
-  float topBoundary = viewY + VERTICAL_MARGIN;
-  if (player.getTop() < topBoundary) {
-    viewY -= topBoundary - player.getTop();
-  }
-  float bottomBoundary = viewY + height - VERTICAL_MARGIN;
-  if (player.getBottom() > bottomBoundary) {
-    viewY += player.getBottom() - bottomBoundary;
-  }
-  translate(-viewX, -viewY);
 }

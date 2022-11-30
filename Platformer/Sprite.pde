@@ -36,15 +36,6 @@ public class Sprite {
   }
   public Sprite(String filename, float x, float y, float scale) {
     this(loadImage(filename), x, y, scale);
-    /*img = loadImage(filename);
-    imgx = x;
-    imgy = y;
-    sizeW = img.width * scale;
-    sizeH = img.height * scale;
-    this.scale = scale;
-    visible = true;
-    changeX = 0;
-    changeY = 0;*/
   }
   public Sprite(String filename, float x, float y) {
     this(filename, x, y, 1);
@@ -145,6 +136,17 @@ public class Sprite {
   }
   public void addSpeedY(float dy) {
     changeY += dy;
+  }
+  
+  //  Change scale
+  public void setScale(float newScale) {
+    sizeW *= newScale / scale;
+    sizeH *= newScale / scale;
+    scale = newScale;
+  }
+  
+  public void setScaleRelative(float relativeScale) {
+    setScale(getScale() * relativeScale);
   }
   
   //  State update

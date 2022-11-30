@@ -54,6 +54,7 @@ void keyReleased() {
     if ((isGameEnd && levelId > 0)) {
       initialLevel = 0;
       isGameEnd = false;
+      isNewLevel = true;
       isGameLoading = true;
       loop();
     } else if (isGameOver || (isGameEnd && levelId > 0)) {
