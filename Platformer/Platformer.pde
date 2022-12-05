@@ -50,6 +50,9 @@ isNewLevel = false, loadingDb;
 boolean touchingGround;
 int leavingGround;
 
+// Frames
+int touchingGoalFrames;
+
 // SETUP
 void setup() {
   // Windows
@@ -87,6 +90,9 @@ void setup() {
   //  Conditions
   touchingGround = false;
   leavingGround = 0;
+  
+  // Frames
+  touchingGoalFrames = 0;
 }
 
 // DRAW
@@ -104,7 +110,7 @@ void draw() {
   } else if (isGameEnd) {
     textAlign(CENTER);
     textFont(ComicSansMS);
-    fill(0);
+    fill(0, 255, 0);
     text("YOU REACHED THE END!", width / 2, height / 2 - tileSize);
     fill(0);
     text("THANK YOU FOR PLAYING!", width / 2, height / 2);
@@ -130,6 +136,28 @@ void draw() {
       }
       setLevel(levelId);
       loadingDb = false;
+      touchedGoal = false;
+    }
+  } else if (courseClear) {
+    if (touchingGoalFrames == 0) {
+      textAlign(CENTER);
+      textFont(ComicSansMS);
+      textSize(tileSize * 2);
+      fill(255, 190, 0);
+      text("Course Clear!", width / 2, height / 2);
+    }
+    if (touchingGoalFrames >= 0 && touchingGoalFrames < 60 * 2) {
+      touchingGoalFrames++;
+    } else if (touchingGoalFrames > 0) {
+      textAlign(CENTER);
+      textFont(ComicSansMS);
+      fill(0);
+      text("Loading next level...", width / 2, height - tileSize);
+      touchingGoalFrames = -1;
+    } else {
+      touchingGoalFrames = 0;
+      nextLevel();
+      courseClear = false;
     }
   } else if (isGameLoaded) {
     draw2();

@@ -17,9 +17,10 @@ void cameraZoom() {
   } else {
     mapScale = 1;
   }
-  //if ((mapScale - prevMapScale) / prevMapScale > 0.001) {
-    mapScale = prevMapScale * (1 + 0.001 * Signum(mapScale - prevMapScale));
-  //}
+  mapScale = prevMapScale * (1 + 0.001 * Signum(mapScale - prevMapScale));
+  if (mapScale > prevMapScale && (dbRight || dbLeft || dbUp || dbDown || dbSpace)) {
+    mapScale = prevMapScale;
+  }
   scale(mapScale);
   prevMapScale = mapScale;
 }

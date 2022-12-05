@@ -1,5 +1,7 @@
 // Goal Class
 
+boolean touchedGoal = false, courseClear = false;
+
 public class Goal extends AnimatedSprite {
   private String flagType;
   
@@ -41,24 +43,36 @@ public class Goal extends AnimatedSprite {
     return flagType;
   }
   public void onTouch() {
-    nextLevel();
-  }
-  public void nextLevel() {
-    player.initPlayerPowerup();
-    if (levelId > 0) {
-      levelId++;
-      if (levelId == totalLevel + 1) {
-        isGameEnd = true;
-        return;
-      }
-    } else {
-      levelId--;
-      if (levelId == -1) {
-        isGameEnd = true;
-        return;
-      }
+    if (touchedGoal) return;
+    touchedGoal = true;
+    
+    if (levelId == totalLevel) {
+      isGameEnd = true;
+      return;
+    } else if (levelId == 0) {
+      isGameEnd = true;
+      return;
     }
-    setLevel(levelId);
-    player.initPlayerPos();
-  } 
+    courseClear = true;
+  }
+}
+// Move to next level
+public void nextLevel() {
+  player.initPlayerPowerup();
+  if (levelId > 0) {
+    levelId++;
+    if (levelId == totalLevel + 1) {
+      isGameEnd = true;
+      return;
+    }
+  } else {
+    levelId--;
+    if (levelId == -1) {
+      isGameEnd = true;
+      return;
+    }
+  }
+  setLevel(levelId);
+  player.initPlayerPos();
+  touchedGoal = false;
 }
