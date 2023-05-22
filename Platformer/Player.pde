@@ -115,6 +115,7 @@ public class Player extends AnimatedSprite {
   
   // Reset Player
   void initPlayer() {
+    println("Reset player");
     initPlayerPos();
     initPlayerPowerup();
     lives = defaultLives;

@@ -51,14 +51,15 @@ void keyReleased() {
   }
   if (key == ' ') {
     if (!dbSpace) return;
-    if ((isGameEnd && levelId > 0)) {
-      initialLevel = 0;
+    if ((isGameEnd && levelId > 0)) { // Reached the end of positive, thanks for playing
+      initialLevel = 0; // Zeroth level
       isGameEnd = false;
       isNewLevel = true;
       isGameLoading = true;
       loop();
-    } else if (isGameOver || (isGameEnd && levelId > 0)) {
+    } else if (isGameOver) { // Loss, restart
       isGameOver = false;
+      isNewLevel = false;
       isGameLoading = true;
       loop();
     }
